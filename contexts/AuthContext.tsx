@@ -1,60 +1,104 @@
+import * as React from "react";
+import type {
+  User,
+  KycRequest,
+  PendingDeposit,
+  Notification,
+  Transaction,
+  ChatMessage,
+  PendingWithdrawal,
+  SecondContractTrade,
+  UserDetails,
+  KYCData,
+  SystemSettings,
+  ReferralInfo,
+} from "../types.ts";
+import {
+  apiLogin,
+  apiSignup,
+  apiGetUserByToken,
+  apiDeposit,
+  apiSubmitKyc,
+  apiWithdraw,
+  apiGetAllUsers,
+  apiGetPendingKyc,
+  apiUpdateKycStatus,
+  apiGetPendingDeposits,
+  apiUpdateDepositStatus,
+  apiMarkAllNotificationsAsRead,
+  apiMarkNotificationAsRead,
+  apiGetAiChatResponse,
+  apiGetPendingWithdrawals,
+  apiUpdateWithdrawalStatus,
+  apiUpdateUserBalance,
+  apiAddManualTransaction,
+  apiGetAllTrades,
+  apiPlaceSecondContractTrade,
+  apiCompleteSecondContractTrade,
+  apiVerifyAdminPassword,
+  apiAdminCreateUser,
+  apiGetAllActiveContracts,
+  apiAdminResolveContract,
+  apiGetSystemSettings,
+  apiUpdateSystemSettings,
+  apiChangePassword,
+  apiSetFundPassword,
+  apiToggle2FA,
+  apiGetAllOrders,
+} from "../server/api.ts";
 
-import * as React from 'react';
-import type { User, KycRequest, PendingDeposit, Notification, Transaction, ChatMessage, PendingWithdrawal, SecondContractTrade, UserDetails, KYCData, SystemSettings, ReferralInfo } from '../types.ts';
-import { apiLogin, apiSignup, apiGetUserByToken, apiDeposit, apiSubmitKyc, apiWithdraw, apiGetAllUsers, apiGetPendingKyc, apiUpdateKycStatus, apiGetPendingDeposits, apiUpdateDepositStatus, apiMarkAllNotificationsAsRead, apiMarkNotificationAsRead, apiGetAiChatResponse, apiGetPendingWithdrawals, apiUpdateWithdrawalStatus, apiUpdateUserBalance, apiAddManualTransaction, apiGetAllTrades, apiPlaceSecondContractTrade, apiCompleteSecondContractTrade, apiVerifyAdminPassword, apiAdminCreateUser, apiGetAllActiveContracts, apiAdminResolveContract, apiGetSystemSettings, apiUpdateSystemSettings, apiChangePassword, apiSetFundPassword, apiToggle2FA, apiGetAllOrders } from '../server/api.ts';
-
-const AUTH_TOKEN_KEY = 'fortressInvestmentAuthToken';
+const AUTH_TOKEN_KEY = "fortressInvestmentAuthToken";
 
 interface DepositDetails {
-    amount: number;
-    network: 'TRC20' | 'ERC20' | 'BTC';
-    asset: string;
-    transactionProof: string; // base64
+  amount: number;
+  network: "TRC20" | "ERC20" | "BTC";
+  asset: string;
+  transactionProof: string; // base64
 }
 
 interface WithdrawDetails {
-    amount: number;
-    address: string;
-    asset: string;
+  amount: number;
+  address: string;
+  asset: string;
 }
 
 interface ManualTransactionDetails {
-    userEmail: string;
-    type: 'Deposit' | 'Withdrawal';
-    asset: string;
-    amount: number;
+  userEmail: string;
+  type: "Deposit" | "Withdrawal";
+  asset: string;
+  amount: number;
 }
 
 interface ContractOption {
-    duration: number;
-    profitRate: number;
-    commissionRate: number;
+  duration: number;
+  profitRate: number;
+  commissionRate: number;
 }
 interface PlaceSecondContractTradeDetails {
-    amount: number;
-    type: 'buy' | 'sell';
-    option: ContractOption;
-    entryPrice: number;
+  amount: number;
+  type: "buy" | "sell";
+  option: ContractOption;
+  entryPrice: number;
 }
 
 interface CompleteTradeDetails {
-    pair: string;
-    direction: 'Buy' | 'Sell';
-    stake: number;
-    commission: number;
-    profit: number; // pnl
-    entryPrice: number;
-    exitPrice: number;
-    startTime: string;
-    settlementDuration: number;
-    profitPercentage: number;
-    commissionPercentage: number;
+  pair: string;
+  direction: "Buy" | "Sell";
+  stake: number;
+  commission: number;
+  profit: number; // pnl
+  entryPrice: number;
+  exitPrice: number;
+  startTime: string;
+  settlementDuration: number;
+  profitPercentage: number;
+  commissionPercentage: number;
 }
 
 interface CreateUserDetails {
-    name: string;
-    email: string;
-    password?: string;
+  name: string;
+  email: string;
+  password?: string;
 }
 
 interface AuthContextType {
@@ -65,39 +109,84 @@ interface AuthContextType {
   isAdmin: boolean;
   systemSettings: SystemSettings | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string, details: UserDetails, referralCode?: string) => Promise<void>;
+  signup: (
+    name: string,
+    email: string,
+    password: string,
+    details: UserDetails,
+    referralCode?: string,
+  ) => Promise<void>;
   logout: () => void;
   deposit: (details: DepositDetails) => Promise<void>;
   updateUserPhoto: (photoFile: File) => Promise<void>;
   submitKyc: (kycData: KYCData) => Promise<void>;
   withdraw: (password: string, details: WithdrawDetails) => Promise<void>;
-  placeSecondContractTrade: (details: PlaceSecondContractTradeDetails) => Promise<void>;
-  completeSecondContractTrade: (tradeId: string, currentPrice: number) => Promise<void>;
+  placeSecondContractTrade: (
+    details: PlaceSecondContractTradeDetails,
+  ) => Promise<void>;
+  completeSecondContractTrade: (
+    tradeId: string,
+    currentPrice: number,
+  ) => Promise<void>;
   completeTrade: (details: CompleteTradeDetails) => void;
   getAiChatResponse: (message: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
-  setFundPassword: (loginPassword: string, fundPassword: string) => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
+  setFundPassword: (
+    loginPassword: string,
+    fundPassword: string,
+  ) => Promise<void>;
   toggle2FA: (loginPassword: string, code: string) => Promise<void>;
   // Admin functions
   verifyAdminPassword: (password: string) => Promise<boolean>;
   adminCreateUser: (details: CreateUserDetails) => Promise<void>;
   fetchAllUsers: () => Promise<User[]>;
   fetchPendingKyc: () => Promise<KycRequest[]>;
-  updateKycStatus: (password: string, targetUserId: string, status: 'verified' | 'rejected') => Promise<void>;
+  updateKycStatus: (
+    password: string,
+    targetUserId: string,
+    status: "verified" | "rejected",
+  ) => Promise<void>;
   fetchPendingDeposits: () => Promise<PendingDeposit[]>;
-  updateDepositStatus: (password: string, targetUserId: string, transactionId: string, status: 'Completed' | 'Failed') => Promise<void>;
+  updateDepositStatus: (
+    password: string,
+    targetUserId: string,
+    transactionId: string,
+    status: "Completed" | "Failed",
+  ) => Promise<void>;
   fetchPendingWithdrawals: () => Promise<PendingWithdrawal[]>;
-  updateWithdrawalStatus: (password: string, targetUserId: string, transactionId: string, status: 'Completed' | 'Failed') => Promise<void>;
-  updateUserBalance: (password: string, targetUserId: string, newBalance: number) => Promise<void>;
-  addManualTransaction: (password: string, details: ManualTransactionDetails) => Promise<void>;
+  updateWithdrawalStatus: (
+    password: string,
+    targetUserId: string,
+    transactionId: string,
+    status: "Completed" | "Failed",
+  ) => Promise<void>;
+  updateUserBalance: (
+    password: string,
+    targetUserId: string,
+    newBalance: number,
+  ) => Promise<void>;
+  addManualTransaction: (
+    password: string,
+    details: ManualTransactionDetails,
+  ) => Promise<void>;
   fetchAllTrades: () => Promise<Transaction[]>;
   fetchAllOrders: () => Promise<Transaction[]>;
   fetchAllActiveContracts: () => Promise<SecondContractTrade[]>;
-  adminResolveContract: (password: string, tradeId: string, resolution: 'win' | 'loss') => Promise<void>;
-  updateSystemSettings: (password: string, newSettings: SystemSettings) => Promise<void>;
+  adminResolveContract: (
+    password: string,
+    tradeId: string,
+    resolution: "win" | "loss",
+  ) => Promise<void>;
+  updateSystemSettings: (
+    password: string,
+    newSettings: SystemSettings,
+  ) => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -108,23 +197,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isInitialized, setIsInitialized] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
-  const [systemSettings, setSystemSettings] = React.useState<SystemSettings | null>(null);
+  const [systemSettings, setSystemSettings] =
+    React.useState<SystemSettings | null>(null);
 
   const rehydrateSession = React.useCallback(async () => {
     try {
       const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
       if (storedToken) {
         const fetchedUser = await apiGetUserByToken(storedToken);
-        const storedPhoto = localStorage.getItem(`fortressInvestmentPhoto-${fetchedUser.uid}`);
+        const storedPhoto = localStorage.getItem(
+          `fortressInvestmentPhoto-${fetchedUser.uid}`,
+        );
         if (storedPhoto) {
-            fetchedUser.photoURL = storedPhoto;
+          fetchedUser.photoURL = storedPhoto;
         }
         setUser(fetchedUser);
         setToken(storedToken);
         setIsAdmin(fetchedUser.isAdmin || false);
       }
-      const settings = await apiGetSystemSettings();
-      setSystemSettings(settings);
+      try {
+        const settings = await apiGetSystemSettings();
+        setSystemSettings(settings);
+      } catch (settingsError) {
+        console.warn("Could not load system settings, using defaults");
+        // Provide default settings to prevent blocking
+        setSystemSettings({
+          platformFee: 0.05,
+          minDepositAmount: 10,
+          maxDepositAmount: 50000,
+          vipTiers: [],
+        });
+      }
     } catch (error) {
       console.error("Session rehydration failed:", error);
       localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -136,102 +239,130 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   React.useEffect(() => {
     rehydrateSession();
   }, [rehydrateSession]);
-  
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const { user: loggedInUser, token: new_token } = await apiLogin(email, password, { userAgent: navigator.userAgent });
-      const storedPhoto = localStorage.getItem(`fortressInvestmentPhoto-${loggedInUser.uid}`);
+      const { user: loggedInUser, token: new_token } = await apiLogin(
+        email,
+        password,
+        { userAgent: navigator.userAgent },
+      );
+      const storedPhoto = localStorage.getItem(
+        `fortressInvestmentPhoto-${loggedInUser.uid}`,
+      );
       if (storedPhoto) {
-          loggedInUser.photoURL = storedPhoto;
+        loggedInUser.photoURL = storedPhoto;
       }
       setUser(loggedInUser);
       setToken(new_token);
       setIsAdmin(loggedInUser.isAdmin || false);
       localStorage.setItem(AUTH_TOKEN_KEY, new_token);
     } catch (error) {
-       console.error("Login failed:", error);
-       throw error; // re-throw to be caught in the component
+      console.error("Login failed:", error);
+      throw error; // re-throw to be caught in the component
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const signup = async (name: string, email: string, password: string, details: UserDetails, referralCode?: string) => {
+
+  const signup = async (
+    name: string,
+    email: string,
+    password: string,
+    details: UserDetails,
+    referralCode?: string,
+  ) => {
     setIsLoading(true);
     try {
-        const { user: signedUpUser, token: new_token } = await apiSignup(name, email, password, details, referralCode);
-        setUser(signedUpUser);
-        setToken(new_token);
-        setIsAdmin(signedUpUser.isAdmin || false);
-        localStorage.setItem(AUTH_TOKEN_KEY, new_token);
-    } catch(error) {
-        console.error("Signup failed:", error);
-        throw error;
+      const { user: signedUpUser, token: new_token } = await apiSignup(
+        name,
+        email,
+        password,
+        details,
+        referralCode,
+      );
+      setUser(signedUpUser);
+      setToken(new_token);
+      setIsAdmin(signedUpUser.isAdmin || false);
+      localStorage.setItem(AUTH_TOKEN_KEY, new_token);
+    } catch (error) {
+      console.error("Signup failed:", error);
+      throw error;
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
   const logout = () => {
     if (user) {
-        localStorage.removeItem(`fortressInvestmentPhoto-${user.uid}`);
+      localStorage.removeItem(`fortressInvestmentPhoto-${user.uid}`);
     }
     setUser(null);
     setToken(null);
     setIsAdmin(false);
     localStorage.removeItem(AUTH_TOKEN_KEY);
   };
-  
+
   const deposit = async (details: DepositDetails) => {
-      if(!token) throw new Error("Not authenticated");
-      setIsLoading(true);
-      try {
-          const updatedUser = await apiDeposit(token, details);
-          setUser(prevUser => prevUser ? {...prevUser, ...updatedUser} : updatedUser);
-      } catch (error) {
-          console.error("Deposit failed:", error);
-          throw error;
-      } finally {
-          setIsLoading(false);
-      }
+    if (!token) throw new Error("Not authenticated");
+    setIsLoading(true);
+    try {
+      const updatedUser = await apiDeposit(token, details);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
+    } catch (error) {
+      console.error("Deposit failed:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const submitKyc = async (kycData: KYCData) => {
-      if(!token) throw new Error("Not authenticated");
-      setIsLoading(true);
-      try {
-        const updatedUser = await apiSubmitKyc(token, kycData);
-        setUser(prevUser => prevUser ? {...prevUser, ...updatedUser} : updatedUser);
-      } catch (error) {
-        console.error("KYC Submission failed:", error);
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
-  };
-  
-  const withdraw = async (password: string, details: WithdrawDetails) => {
-      if(!token) throw new Error("Not authenticated");
-      setIsLoading(true);
-      try {
-        const updatedUser = await apiWithdraw(token, password, details);
-        setUser(prevUser => prevUser ? {...prevUser, ...updatedUser} : updatedUser);
-      } catch (error) {
-        console.error("Withdrawal failed:", error);
-        throw error;
-      } finally {
-        setIsLoading(false);
-      }
+    if (!token) throw new Error("Not authenticated");
+    setIsLoading(true);
+    try {
+      const updatedUser = await apiSubmitKyc(token, kycData);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
+    } catch (error) {
+      console.error("KYC Submission failed:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const placeSecondContractTrade = async (details: PlaceSecondContractTradeDetails) => {
-    if(!token) throw new Error("Not authenticated");
+  const withdraw = async (password: string, details: WithdrawDetails) => {
+    if (!token) throw new Error("Not authenticated");
+    setIsLoading(true);
+    try {
+      const updatedUser = await apiWithdraw(token, password, details);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
+    } catch (error) {
+      console.error("Withdrawal failed:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const placeSecondContractTrade = async (
+    details: PlaceSecondContractTradeDetails,
+  ) => {
+    if (!token) throw new Error("Not authenticated");
     setIsLoading(true);
     try {
       const updatedUser = await apiPlaceSecondContractTrade(token, details);
-      setUser(prevUser => prevUser ? {...prevUser, ...updatedUser} : updatedUser);
-    } catch(error) {
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
+    } catch (error) {
       console.error("Failed to place second contract trade:", error);
       throw error;
     } finally {
@@ -239,68 +370,79 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const completeSecondContractTrade = async (tradeId: string, currentPrice: number) => {
-      if(!token) throw new Error("Not authenticated");
-      try {
-          const updatedUser = await apiCompleteSecondContractTrade(token, tradeId, currentPrice);
-          setUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : updatedUser);
-      } catch (error) {
-          console.error("Second Contract completion failed:", error);
-          throw error;
-      }
+  const completeSecondContractTrade = async (
+    tradeId: string,
+    currentPrice: number,
+  ) => {
+    if (!token) throw new Error("Not authenticated");
+    try {
+      const updatedUser = await apiCompleteSecondContractTrade(
+        token,
+        tradeId,
+        currentPrice,
+      );
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
+    } catch (error) {
+      console.error("Second Contract completion failed:", error);
+      throw error;
+    }
   };
 
   const completeTrade = (details: CompleteTradeDetails) => {
-    setUser(prevUser => {
-        if (!prevUser) return null;
+    setUser((prevUser) => {
+      if (!prevUser) return null;
 
-        const payout = details.stake + details.profit;
-        const newBalance = prevUser.portfolio.balance + payout;
+      const payout = details.stake + details.profit;
+      const newBalance = prevUser.portfolio.balance + payout;
 
-        const newTransaction: Transaction = {
-            id: `tx-trade-${Date.now()}`,
-            type: 'Trade',
-            status: 'Completed',
-            asset: details.pair.split('-')[1],
-            amount: details.profit,
-            date: details.startTime,
-            endTime: new Date().toISOString(),
-            pair: details.pair,
-            direction: details.direction,
-            stake: details.stake,
-            commission: details.commission,
-            profit: details.profit,
-            entryPrice: details.entryPrice,
-            exitPrice: details.exitPrice,
-            settlementDuration: details.settlementDuration,
-            profitPercentage: details.profitPercentage,
-            commissionPercentage: details.commissionPercentage,
-        };
-        
-        const updatedUser: User = {
-            ...prevUser,
-            portfolio: {
-                ...prevUser.portfolio,
-                balance: newBalance,
-            },
-            transactions: [newTransaction, ...prevUser.transactions],
-        };
-        
-        return updatedUser;
+      const newTransaction: Transaction = {
+        id: `tx-trade-${Date.now()}`,
+        type: "Trade",
+        status: "Completed",
+        asset: details.pair.split("-")[1],
+        amount: details.profit,
+        date: details.startTime,
+        endTime: new Date().toISOString(),
+        pair: details.pair,
+        direction: details.direction,
+        stake: details.stake,
+        commission: details.commission,
+        profit: details.profit,
+        entryPrice: details.entryPrice,
+        exitPrice: details.exitPrice,
+        settlementDuration: details.settlementDuration,
+        profitPercentage: details.profitPercentage,
+        commissionPercentage: details.commissionPercentage,
+      };
+
+      const updatedUser: User = {
+        ...prevUser,
+        portfolio: {
+          ...prevUser.portfolio,
+          balance: newBalance,
+        },
+        transactions: [newTransaction, ...prevUser.transactions],
+      };
+
+      return updatedUser;
     });
   };
 
   const getAiChatResponse = async (message: string) => {
-    if(!token) throw new Error("Not authenticated");
+    if (!token) throw new Error("Not authenticated");
     setIsLoading(true);
     try {
-        const updatedUser = await apiGetAiChatResponse(token, message);
-        setUser(prevUser => prevUser ? {...prevUser, ...updatedUser} : updatedUser);
+      const updatedUser = await apiGetAiChatResponse(token, message);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
     } catch (error) {
-        console.error("Failed to get AI response:", error);
-        throw error;
+      console.error("Failed to get AI response:", error);
+      throw error;
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -315,11 +457,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       reader.onload = () => {
         const dataUrl = reader.result as string;
         localStorage.setItem(`fortressInvestmentPhoto-${user.uid}`, dataUrl);
-        setUser(prevUser => (prevUser ? { ...prevUser, photoURL: dataUrl } : null));
+        setUser((prevUser) =>
+          prevUser ? { ...prevUser, photoURL: dataUrl } : null,
+        );
         setIsLoading(false);
         resolve();
       };
-      reader.onerror = error => {
+      reader.onerror = (error) => {
         setIsLoading(false);
         reject(error);
       };
@@ -327,55 +471,83 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const markAllNotificationsAsRead = async () => {
-      if(!token) throw new Error("Not authenticated");
-      setIsLoading(true);
-      try {
-          const updatedUser = await apiMarkAllNotificationsAsRead(token);
-          setUser(prevUser => prevUser ? {...prevUser, ...updatedUser} : updatedUser);
-      } catch (error) {
-          console.error("Failed to mark all notifications as read:", error);
-          throw error;
-      } finally {
-          setIsLoading(false);
-      }
+    if (!token) throw new Error("Not authenticated");
+    setIsLoading(true);
+    try {
+      const updatedUser = await apiMarkAllNotificationsAsRead(token);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const markNotificationAsRead = async (notificationId: string) => {
-    if(!token) throw new Error("Not authenticated");
+    if (!token) throw new Error("Not authenticated");
     try {
-        const updatedUser = await apiMarkNotificationAsRead(token, notificationId);
-        setUser(prevUser => prevUser ? {...prevUser, ...updatedUser} : updatedUser);
+      const updatedUser = await apiMarkNotificationAsRead(
+        token,
+        notificationId,
+      );
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
     } catch (error) {
-        console.error(`Failed to mark notification ${notificationId} as read:`, error);
-        throw error;
+      console.error(
+        `Failed to mark notification ${notificationId} as read:`,
+        error,
+      );
+      throw error;
     }
   };
 
-  const changePassword = async (currentPassword: string, newPassword: string) => {
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string,
+  ) => {
     if (!token) throw new Error("Not authenticated");
     setIsLoading(true);
     try {
-        const updatedUser = await apiChangePassword(token, currentPassword, newPassword);
-        setUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : updatedUser);
+      const updatedUser = await apiChangePassword(
+        token,
+        currentPassword,
+        newPassword,
+      );
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
     } catch (error) {
-        console.error("Failed to change password:", error);
-        throw error;
+      console.error("Failed to change password:", error);
+      throw error;
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const setFundPassword = async (loginPassword: string, fundPassword: string) => {
+  const setFundPassword = async (
+    loginPassword: string,
+    fundPassword: string,
+  ) => {
     if (!token) throw new Error("Not authenticated");
     setIsLoading(true);
     try {
-        const updatedUser = await apiSetFundPassword(token, loginPassword, fundPassword);
-        setUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : updatedUser);
+      const updatedUser = await apiSetFundPassword(
+        token,
+        loginPassword,
+        fundPassword,
+      );
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
     } catch (error) {
-        console.error("Failed to set fund password:", error);
-        throw error;
+      console.error("Failed to set fund password:", error);
+      throw error;
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -383,27 +555,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!token) throw new Error("Not authenticated");
     setIsLoading(true);
     try {
-        const updatedUser = await apiToggle2FA(token, loginPassword, code);
-        setUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : updatedUser);
+      const updatedUser = await apiToggle2FA(token, loginPassword, code);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+      );
     } catch (error) {
-        console.error("Failed to toggle 2FA:", error);
-        throw error;
+      console.error("Failed to toggle 2FA:", error);
+      throw error;
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
-
 
   // --- Admin Functions ---
   const verifyAdminPassword = async (password: string): Promise<boolean> => {
     if (!token) throw new Error("Not authenticated");
     return apiVerifyAdminPassword(token, password);
-  }
+  };
 
   const adminCreateUser = async (details: CreateUserDetails): Promise<void> => {
-      if (!token) throw new Error("Not authenticated");
-      await apiAdminCreateUser(token, details);
-  }
+    if (!token) throw new Error("Not authenticated");
+    await apiAdminCreateUser(token, details);
+  };
 
   const fetchAllUsers = async (): Promise<User[]> => {
     if (!token) throw new Error("Not authenticated");
@@ -415,8 +588,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return apiGetPendingKyc(token);
   };
 
-  const updateKycStatus = async (password: string, targetUserId: string, status: 'verified' | 'rejected'): Promise<void> => {
-    if(!token) throw new Error("Not authenticated");
+  const updateKycStatus = async (
+    password: string,
+    targetUserId: string,
+    status: "verified" | "rejected",
+  ): Promise<void> => {
+    if (!token) throw new Error("Not authenticated");
     await apiUpdateKycStatus(token, password, targetUserId, status);
   };
 
@@ -424,59 +601,94 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!token) throw new Error("Not authenticated");
     return apiGetPendingDeposits(token);
   };
-  
-  const updateDepositStatus = async (password: string, targetUserId: string, transactionId: string, status: 'Completed' | 'Failed'): Promise<void> => {
-      if(!token) throw new Error("Not authenticated");
-      await apiUpdateDepositStatus(token, password, targetUserId, transactionId, status);
+
+  const updateDepositStatus = async (
+    password: string,
+    targetUserId: string,
+    transactionId: string,
+    status: "Completed" | "Failed",
+  ): Promise<void> => {
+    if (!token) throw new Error("Not authenticated");
+    await apiUpdateDepositStatus(
+      token,
+      password,
+      targetUserId,
+      transactionId,
+      status,
+    );
   };
 
   const fetchPendingWithdrawals = async (): Promise<PendingWithdrawal[]> => {
     if (!token) throw new Error("Not authenticated");
     return apiGetPendingWithdrawals(token);
-  }
+  };
 
-  const updateWithdrawalStatus = async (password: string, targetUserId: string, transactionId: string, status: 'Completed' | 'Failed'): Promise<void> => {
+  const updateWithdrawalStatus = async (
+    password: string,
+    targetUserId: string,
+    transactionId: string,
+    status: "Completed" | "Failed",
+  ): Promise<void> => {
     if (!token) throw new Error("Not authenticated");
-    await apiUpdateWithdrawalStatus(token, password, targetUserId, transactionId, status);
-  }
+    await apiUpdateWithdrawalStatus(
+      token,
+      password,
+      targetUserId,
+      transactionId,
+      status,
+    );
+  };
 
-  const updateUserBalance = async (password: string, targetUserId: string, newBalance: number): Promise<void> => {
+  const updateUserBalance = async (
+    password: string,
+    targetUserId: string,
+    newBalance: number,
+  ): Promise<void> => {
     if (!token) throw new Error("Not authenticated");
     await apiUpdateUserBalance(token, password, targetUserId, newBalance);
-  }
-  
-  const addManualTransaction = async (password: string, details: ManualTransactionDetails): Promise<void> => {
-      if(!token) throw new Error("Not authenticated");
-      await apiAddManualTransaction(token, password, details);
-  }
+  };
+
+  const addManualTransaction = async (
+    password: string,
+    details: ManualTransactionDetails,
+  ): Promise<void> => {
+    if (!token) throw new Error("Not authenticated");
+    await apiAddManualTransaction(token, password, details);
+  };
 
   const fetchAllTrades = async (): Promise<Transaction[]> => {
-      if(!token) throw new Error("Not authenticated");
-      return apiGetAllTrades(token);
-  }
+    if (!token) throw new Error("Not authenticated");
+    return apiGetAllTrades(token);
+  };
 
   const fetchAllOrders = async (): Promise<Transaction[]> => {
-      if(!token) throw new Error("Not authenticated");
-      return apiGetAllOrders(token);
-  }
+    if (!token) throw new Error("Not authenticated");
+    return apiGetAllOrders(token);
+  };
 
   const fetchAllActiveContracts = async (): Promise<SecondContractTrade[]> => {
-    if(!token) throw new Error("Not authenticated");
+    if (!token) throw new Error("Not authenticated");
     return apiGetAllActiveContracts(token);
-  }
+  };
 
-  const adminResolveContract = async (password: string, tradeId: string, resolution: 'win' | 'loss'): Promise<void> => {
-    if(!token) throw new Error("Not authenticated");
+  const adminResolveContract = async (
+    password: string,
+    tradeId: string,
+    resolution: "win" | "loss",
+  ): Promise<void> => {
+    if (!token) throw new Error("Not authenticated");
     return apiAdminResolveContract(token, password, tradeId, resolution);
-  }
-  
-  const updateSystemSettings = async (password: string, newSettings: SystemSettings): Promise<void> => {
-    if(!token) throw new Error("Not authenticated");
+  };
+
+  const updateSystemSettings = async (
+    password: string,
+    newSettings: SystemSettings,
+  ): Promise<void> => {
+    if (!token) throw new Error("Not authenticated");
     await apiUpdateSystemSettings(token, password, newSettings);
     const settings = await apiGetSystemSettings();
     setSystemSettings(settings);
   };
-
 
   const value: AuthContextType = {
     user,
@@ -521,17 +733,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     updateSystemSettings,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = React.useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within a AuthProvider');
+    throw new Error("useAuth must be used within a AuthProvider");
   }
   return context;
 };
