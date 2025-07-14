@@ -237,6 +237,17 @@ const AssistantScreen = () => {
       </main>
 
       <footer className="p-4 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-600 sticky bottom-0">
+        <div className="text-center text-xs text-gray-500 dark:text-gray-400 mb-3">
+          🔐 For account issues or urgent support, message{" "}
+          <a
+            href="https://t.me/FortressInvestmentSupport"
+            target="_blank"
+            className="text-blue-600 hover:text-blue-700 underline"
+          >
+            @FortressInvestmentSupport
+          </a>{" "}
+          on Telegram
+        </div>
         <form
           onSubmit={handleSendMessage}
           className="flex items-end gap-3 max-w-4xl mx-auto"
