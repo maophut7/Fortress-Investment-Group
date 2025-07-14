@@ -83,21 +83,39 @@ const AssistantScreen = () => {
         className={`flex items-end gap-2 w-full max-w-3xl ${isUser ? "justify-end ml-12" : "justify-start mr-12"}`}
       >
         {!isUser && (
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-blue-500 flex-shrink-0 flex items-center justify-center">
-            <Sparkles size={24} className="text-white" />
+          <div className="w-8 h-8 rounded-full bg-blue-600 flex-shrink-0 flex items-center justify-center">
+            <Bot size={16} className="text-white" />
           </div>
         )}
         <div
-          className={`px-4 py-3 rounded-2xl ${isUser ? "bg-purple-600 text-white rounded-br-lg" : "bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-bl-lg"}`}
+          className={`relative px-4 py-2 rounded-2xl max-w-xs md:max-w-sm ${
+            isUser
+              ? "bg-blue-600 text-white rounded-br-md shadow-lg"
+              : "bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200 rounded-bl-md shadow-lg border border-gray-200 dark:border-slate-600"
+          }`}
         >
-          <p className="whitespace-pre-wrap">{messageText}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            {messageText}
+          </p>
+          <div
+            className={`text-xs mt-1 ${isUser ? "text-blue-100" : "text-gray-500 dark:text-gray-400"}`}
+          >
+            {timestamp}
+          </div>
+          {isUser && (
+            <div className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1">
+              <div className="w-0 h-0 border-l-8 border-l-blue-600 border-t-8 border-t-transparent"></div>
+            </div>
+          )}
+          {!isUser && (
+            <div className="absolute bottom-0 left-0 transform -translate-x-1 translate-y-1">
+              <div className="w-0 h-0 border-r-8 border-r-white dark:border-r-slate-700 border-t-8 border-t-transparent"></div>
+            </div>
+          )}
         </div>
         {isUser && (
-          <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-slate-600 flex-shrink-0 flex items-center justify-center">
-            <UserIcon
-              size={24}
-              className="text-slate-800 dark:text-slate-200"
-            />
+          <div className="w-8 h-8 rounded-full bg-gray-600 dark:bg-slate-500 flex-shrink-0 flex items-center justify-center">
+            <UserIcon size={16} className="text-white" />
           </div>
         )}
       </div>
