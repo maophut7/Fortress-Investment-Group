@@ -15,11 +15,13 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <TradingProvider>
-          <App />
-        </TradingProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <TradingProvider>
+            <App />
+          </TradingProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );
