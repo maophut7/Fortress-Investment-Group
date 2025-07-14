@@ -73,10 +73,14 @@ const AssistantScreen = () => {
   const MessageBubble = ({ message }: { message: ChatMessage }) => {
     const isUser = message.role === "user";
     const messageText = message.parts.map((p) => p.text).join("\n");
+    const timestamp = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
     return (
       <div
-        className={`flex items-start gap-3 w-full max-w-2xl mx-auto ${isUser ? "justify-end" : "justify-start"}`}
+        className={`flex items-end gap-2 w-full max-w-3xl ${isUser ? "justify-end ml-12" : "justify-start mr-12"}`}
       >
         {!isUser && (
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-blue-500 flex-shrink-0 flex items-center justify-center">
