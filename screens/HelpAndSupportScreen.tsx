@@ -134,10 +134,21 @@ const AssistantScreen = () => {
           </div>
           <div>
             <h1 className="text-lg font-semibold">Fortress AI Bot</h1>
-            <p className="text-xs text-blue-100">Online • Investment Expert</p>
+            <p className="text-xs text-blue-100">
+              Online • @FortressInvestmentSupport
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            className="p-2 rounded-full hover:bg-blue-500 transition-colors"
+            onClick={() =>
+              window.open("https://t.me/FortressInvestmentSupport", "_blank")
+            }
+            title="Contact on Telegram"
+          >
+            <MessageCircle size={20} />
+          </button>
           <button className="p-2 rounded-full hover:bg-blue-500 transition-colors">
             <Phone size={20} />
           </button>
