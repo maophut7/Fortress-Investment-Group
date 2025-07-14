@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import { TradingProvider } from "./contexts/TradingContext.tsx";
+import { ThemeProvider } from "./contexts/ThemeContext.tsx";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
