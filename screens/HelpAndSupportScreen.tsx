@@ -176,8 +176,18 @@ const AssistantScreen = () => {
             <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">
               Welcome to Fortress AI
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Your personal investment assistant on Telegram
+            <p className="text-gray-600 dark:text-gray-300 mb-2">
+              Your personal investment assistant
+            </p>
+            <p className="text-sm text-blue-600 dark:text-blue-400 mb-6">
+              💬 Need direct support? Contact us on{" "}
+              <a
+                href="https://t.me/FortressInvestmentSupport"
+                target="_blank"
+                className="underline hover:text-blue-700"
+              >
+                @FortressInvestmentSupport
+              </a>
             </p>
             <div className="grid grid-cols-2 gap-3 mt-6 max-w-2xl w-full">
               {quickPrompts.map((item, index) => (
